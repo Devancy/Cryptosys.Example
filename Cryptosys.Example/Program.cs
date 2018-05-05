@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Casttle;
 using CryptoSysPKI;
 
 namespace Cryptosys.Example
@@ -9,7 +12,15 @@ namespace Cryptosys.Example
         // https://www.cryptosys.net/pki/rsakeyformats.html
         static void Main(string[] args)
         {
-            Console.WriteLine("CryptoSys PKI Version={0}", General.Version());
+            //Cert.Do();
+            //var sbPrivateKey = Rsa.ReadEncPrivateKey(@"D:\clientCert.pfx", "1");
+            X509Certificate2 cert = new X509Certificate2(@"D:\clientCert.pfx", "1", X509KeyStorageFlags.Exportable);
+            //File.WriteAllText(@"D:\PrivateKey.xml", cert.PrivateKey.ToXmlString(true));
+            //File.WriteAllText(@"D:\PublicKey.xml", cert.PublicKey.Key.ToXmlString(false));
+            byte[] cer = cert.Export(X509ContentType.Cert, "1");
+            File.WriteAllBytes(@"D:\clientCert.cer", cer);
+
+            //Console.WriteLine("CryptoSys PKI Version={0}", General.Version());
             // TODO Create CA
             //V_Test_RSA_MakeKeys();
             //V_Test_X509_MakeCertSelf();
@@ -23,8 +34,8 @@ namespace Cryptosys.Example
             //V_Test_X509_VerifyCert();
             //V_Test_X509_CertIsValidNow();
             //V_Test_X509_CertExpiresOn();
-            V_Test_CMS_MakeSigData();
-            V_Test_CMS_VerifySigData();
+            //V_Test_CMS_MakeSigData();
+            //V_Test_CMS_VerifySigData();
 
 
 
