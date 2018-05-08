@@ -4,6 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Casttle;
 using CryptoSysPKI;
+using Org.BouncyCastle.Crypto;
 
 namespace Cryptosys.Example
 {
@@ -13,12 +14,16 @@ namespace Cryptosys.Example
         static void Main(string[] args)
         {
             //Cert.Do();
-            //var sbPrivateKey = Rsa.ReadEncPrivateKey(@"D:\clientCert.pfx", "1");
-            X509Certificate2 cert = new X509Certificate2(@"D:\clientCert.pfx", "1", X509KeyStorageFlags.Exportable);
-            //File.WriteAllText(@"D:\PrivateKey.xml", cert.PrivateKey.ToXmlString(true));
-            //File.WriteAllText(@"D:\PublicKey.xml", cert.PublicKey.Key.ToXmlString(false));
-            byte[] cer = cert.Export(X509ContentType.Cert, "1");
-            File.WriteAllBytes(@"D:\clientCert.cer", cer);
+            //var rootCA = Test.CreateCARoot();
+            //var userCA = Test.CreateCAUser();
+            //Test.CreateCAUser2();
+            //Test.CreateCARoot2();
+            //Test.RootVerifyUserCA();
+            //Test.Root2VerifyUserCA();
+            //var nRet = X509.VerifyCert(@"D:\userCert.cer", @"D:\rootCert.cer");
+            
+            Test.VerifyCertificate();
+
 
             //Console.WriteLine("CryptoSys PKI Version={0}", General.Version());
             // TODO Create CA

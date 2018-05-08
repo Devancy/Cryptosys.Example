@@ -11,6 +11,7 @@ using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Operators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.Math;
@@ -54,8 +55,8 @@ namespace Casttle
             certificateGenerator.SetSerialNumber(serialNumber);
 
             // Signature Algorithm
-            const string signatureAlgorithm = "SHA256WithRSA";
-            certificateGenerator.SetSignatureAlgorithm(signatureAlgorithm);
+            //const string signatureAlgorithm = "SHA256WithRSA";
+            //certificateGenerator.SetSignatureAlgorithm(signatureAlgorithm);
 
             // Issuer and Subject Name
             X509Name subjectDN = new X509Name(subjectName);
@@ -82,7 +83,11 @@ namespace Casttle
             AsymmetricCipherKeyPair issuerKeyPair = subjectKeyPair;
 
             // selfsign certificate
-            Org.BouncyCastle.X509.X509Certificate certificate = certificateGenerator.Generate(issuerPrivKey, random);
+            //Org.BouncyCastle.X509.X509Certificate certificate = certificateGenerator.Generate(issuerPrivKey, random);
+            ISignatureFactory signatureFactory = new Asn1SignatureFactory("SHA512WITHRSA", issuerPrivKey, random);
+            Org.BouncyCastle.X509.X509Certificate certificate = certificateGenerator.Generate(signatureFactory);
+
+            
 
 
             // correcponding private key
@@ -102,7 +107,8 @@ namespace Casttle
             RsaPrivateCrtKeyParameters rsaparams = new RsaPrivateCrtKeyParameters(
                 rsa.Modulus, rsa.PublicExponent, rsa.PrivateExponent, rsa.Prime1, rsa.Prime2, rsa.Exponent1, rsa.Exponent2, rsa.Coefficient);
 
-            x509.PrivateKey = ToDotNetKey(rsaparams); //x509.PrivateKey = DotNetUtilities.ToRSA(rsaparams);
+            //x509.PrivateKey = ToDotNetKey(rsaparams);
+            x509.PrivateKey = DotNetUtilities.ToRSA(rsaparams);
             return x509;
 
         }
@@ -149,8 +155,8 @@ namespace Casttle
             certificateGenerator.SetSerialNumber(serialNumber);
 
             // Signature Algorithm
-            const string signatureAlgorithm = "SHA256WithRSA";
-            certificateGenerator.SetSignatureAlgorithm(signatureAlgorithm);
+            //const string signatureAlgorithm = "SHA256WithRSA";
+            //certificateGenerator.SetSignatureAlgorithm(signatureAlgorithm);
 
             // Issuer and Subject Name
             X509Name subjectDN = new X509Name(subjectName);
@@ -178,7 +184,9 @@ namespace Casttle
             AsymmetricCipherKeyPair issuerKeyPair = subjectKeyPair;
 
             // selfsign certificate
-            Org.BouncyCastle.X509.X509Certificate certificate = certificateGenerator.Generate(issuerKeyPair.Private, random);
+            //Org.BouncyCastle.X509.X509Certificate certificate = certificateGenerator.Generate(issuerKeyPair.Private, random);
+            ISignatureFactory signatureFactory = new Asn1SignatureFactory("SHA512WITHRSA", issuerKeyPair.Private, random);
+            Org.BouncyCastle.X509.X509Certificate certificate = certificateGenerator.Generate(signatureFactory);
             X509Certificate2 x509 = new System.Security.Cryptography.X509Certificates.X509Certificate2(certificate.GetEncoded());
 
             CaPrivateKey = issuerKeyPair.Private;
@@ -206,6 +214,22 @@ namespace Casttle
             }
 
             return bRet;
+        }
+        public static AsymmetricKeyParameter ReadPrivateKey(X509Certificate2 certificate)
+        {
+            RSACryptoServiceProvider rsa = (RSACryptoServiceProvider)certificate.PrivateKey;
+
+            RSAParameters parameters = rsa.ExportParameters(true);
+
+            return new RsaPrivateCrtKeyParameters(
+                new BigInteger(1, parameters.Modulus),
+                new BigInteger(1, parameters.Exponent),
+                new BigInteger(1, parameters.D),
+                new BigInteger(1, parameters.P),
+                new BigInteger(1, parameters.Q),
+                new BigInteger(1, parameters.DP),
+                new BigInteger(1, parameters.DQ),
+                new BigInteger(1, parameters.InverseQ));
         }
     }
 }
